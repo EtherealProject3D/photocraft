@@ -2518,7 +2518,7 @@ fn layers(app: &mut PhotocraftApp, ui: &mut egui::Ui) {
             }
             ui.separator();
             if menu.item(ui, tl!("Solid Color…")) {
-                actions.push(("layer.newFillLayer.solidColor".into(), json!({})));
+                actions.push(("layer.newFillLayer.solidColor".into(), Value::Null));
             }
             if menu.item(ui, tl!("Gradient…")) {
                 actions.push(("layer.newFillLayer.gradient".into(), json!({})));
