@@ -86,7 +86,7 @@ pub fn classify(i: Input) -> Option<Wheel> {
 pub fn configure(ctx: &Context) {
     ctx.options_mut(|o| {
         o.input_options.zoom_modifier = Modifiers::NONE;
-        o.input_options.horizontal_scroll_modifier = Modifiers::SHIFT | Modifiers::COMMAND;
+        o.input_options.horizontal_scroll_modifier = Modifiers::SHIFT;
     });
 }
 
@@ -155,7 +155,7 @@ pub fn read(ctx: &Context, zoom_with_wheel: bool, pinch_zooms: bool) -> Option<W
     let notch = ctx.options(|o| o.input_options.line_scroll_speed);
     let (scroll, zoom_delta, latest, wheel, page) = ctx.input(|i| {
         let latest = i.events.iter().rev().find_map(|e| match e {
-            Event::MouseWheel { modifiers, .. } => Some(modifiers.alt && !modifiers.command && !modifiers.ctrl),
+            Event::MouseWheel { modifiers, .. } => Some((modifiers.alt || modifiers.ctrl || modifiers.command) && !modifiers.shift),
             _ => None,
         });
         let wheel: Vec<(MouseWheelUnit, Vec2, Modifiers)> = i
@@ -177,7 +177,7 @@ pub fn read(ctx: &Context, zoom_with_wheel: bool, pinch_zooms: bool) -> Option<W
     };
     // The wheel events that belong to the gesture in progress: Alt ones, or plain ones (⇧ and
     // ⌘/Ctrl wheel scroll sideways and never zoom).
-    let raw = wheel.iter().filter(|(_, _, m)| if alt { m.alt && !m.command && !m.ctrl } else { !m.alt && !m.shift && !m.command && !m.ctrl }).fold(
+    let raw = wheel.iter().filter(|(_, _, m)| if alt { (m.alt || m.ctrl || m.command) && !m.shift } else { !m.alt && !m.shift && !m.command && !m.ctrl }).fold(
         Vec2::ZERO,
         |sum, (unit, delta, _)| {
             sum + *delta
